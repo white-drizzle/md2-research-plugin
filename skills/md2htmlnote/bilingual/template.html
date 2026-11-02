@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双语对照阅读页</title>
+<style>
+:root {
+  /* ── 基础色板（md2htmlnote 继承）── */
+  --text: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --bg: #fdfcfa;
+  --surface: #ffffff;
+  --border: #e0dcd4;
+  --accent: #8b3a3a;
+  --highlight-box: #faf6ef;
+  --highlight-border: #d4a843;
+  --radius: 6px;
+  /* ── 6 色语义编码 ── */
+  --sem-red:        #dc2626;
+  --sem-red-bg:     rgba(220, 38, 38, 0.055);
+  --sem-blue:       #2563eb;
+  --sem-blue-bg:    rgba(37, 99, 235, 0.055);
+  --sem-green:      #16a34a;
+  --sem-green-bg:   rgba(22, 163, 74, 0.055);
+  --sem-yellow:     #ca8a04;
+  --sem-yellow-bg:  rgba(202, 138, 4, 0.06);
+  --sem-purple:     #9333ea;
+  --sem-purple-bg:  rgba(147, 51, 234, 0.055);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+  font-size: 16px; line-height: 1.85;
+  color: var(--text); background: var(--bg);
+}
+h1, h2, h3, h4 { font-family: inherit; font-weight: 700; }
+h1 { font-size: 1.6rem; margin: 0 0 6px; }
+h2 { font-size: 1.3rem; margin: 28px 0 12px; color: var(--accent); }
+h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+p { margin: 6px 0; }
+code, pre { font-family: "JetBrains Mono", "Fira Code", Consolas, monospace; font-size: 0.9em; }
+
+/* ── 内容区 ── */
+.content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 48px 100px;
+}
+
+/* ── 页面头 ── */
+.page-header { margin: 32px 0 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.page-header .sub { color: var(--text-secondary); font-size: 0.98rem; }
+.page-header .meta { color: var(--text-secondary); font-size: 0.85rem; }
+.page-header .meta a { color: var(--text-secondary); text-decoration: underline; word-break: break-all; }
+
+/* ── ToC Sidebar（继承 md2htmlnote）── */
+.toc-sidebar {
+  position: fixed;
+  top: 120px;
+  left: max(calc((100vw - 860px) / 2 - 220px), 8px);
+  width: 190px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  font-size: 0.8rem;
+  z-index: 90;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.toc-sidebar .toc-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.toc-sidebar a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 2px 0;
+  line-height: 1.5;
+  transition: color 0.15s;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+}
+.toc-sidebar a:hover,
+.toc-sidebar a.active { color: var(--accent); border-left-color: var(--accent); }
+.toc-sidebar a.toc-h3 { padding-left: 16px; font-size: 0.75rem; }
+.toc-toggle {
+  display: none;
+  position: fixed;
+  top: 80px; left: 8px;
+  z-index: 91;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Toggle Toolbar ── */
+.toggle-toolbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: rgba(253, 252, 250, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  border-radius: 0 0 6px 6px;
+  flex-wrap: wrap;
+}
+.toggle-btn {
+  font-size: 0.78rem; font-weight: 600;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toggle-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.toggle-btn-all {
+  font-size: 0.73rem;
+  padding: 3px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.toggle-btn-all:hover { border-color: var(--accent); color: var(--accent); }
+.toggle-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.original-text.hidden,
+.translated-text.hidden,
+.insight-note.hidden,
+.lang-divider.hidden,
+.toc-sidebar.hidden { display: none; }
+.original-text.hidden + .lang-divider { display: none; }
+
+/* ── 双语块 ── */
+.bilingual-block {
+  position: relative;
+  margin: 1rem 0 1.4rem;
+  border-radius: 0 6px 6px 0;
+  border-left: 4px solid var(--border);
+  background: transparent;
+  overflow: hidden;
+}
+.bilingual-block.color-red    { border-left-color: var(--sem-red);    background: var(--sem-red-bg); }
+.bilingual-block.color-blue   { border-left-color: var(--sem-blue);   background: var(--sem-blue-bg); }
+.bilingual-block.color-green  { border-left-color: var(--sem-green);  background: var(--sem-green-bg); }
+.bilingual-block.color-yellow { border-left-color: var(--sem-yellow); background: var(--sem-yellow-bg); }
+.bilingual-block.color-purple { border-left-color: var(--sem-purple); background: var(--sem-purple-bg); }
+.original-text { padding: 0.5rem 1rem 0.3rem; font-style: normal; color: var(--text-secondary); line-height: 1.8; }
+.lang-divider {
+  display: flex; align-items: center;
+  margin: 0 0.8rem;
+  border-top: 1px dashed var(--border);
+}
+.lang-divider .lang-tag {
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg);
+  padding: 0 8px;
+  margin-top: -0.55em;
+  letter-spacing: 0.05em;
+}
+.translated-text { padding: 0.3rem 1rem 0.5rem; border-left: 3px dashed transparent; line-height: 1.85; }
+.bilingual-block.color-red    .translated-text { border-left-color: var(--sem-red); }
+.bilingual-block.color-blue   .translated-text { border-left-color: var(--sem-blue); }
+.bilingual-block.color-green  .translated-text { border-left-color: var(--sem-green); }
+.bilingual-block.color-yellow .translated-text { border-left-color: var(--sem-yellow); }
+.bilingual-block.color-purple .translated-text { border-left-color: var(--sem-purple); }
+
+/* ── Inline highlights ── */
+mark.hl-red    { background: rgba(220,38,38,0.15); color: #b91c1c; padding: 0 2px; border-radius: 2px; }
+mark.hl-blue   { background: rgba(37,99,235,0.12); color: #1d4ed8; padding: 0 2px; border-radius: 2px; }
+mark.hl-green  { background: rgba(22,163,74,0.12); color: #15803d; padding: 0 2px; border-radius: 2px; }
+mark.hl-yellow { background: rgba(202,138,4,0.15); color: #a16207; padding: 0 2px; border-radius: 2px; }
+mark.hl-purple { background: rgba(147,51,234,0.12); color: #7e22ce; padding: 0 2px; border-radius: 2px; }
+
+/* ── Semantic badge ── */
+.semantic-badge {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 5px; vertical-align: middle;
+  flex-shrink: 0;
+}
+.badge-red    { background: var(--sem-red); }
+.badge-blue   { background: var(--sem-blue); }
+.badge-green  { background: var(--sem-green); }
+.badge-yellow { background: var(--sem-yellow); }
+.badge-purple { background: var(--sem-purple); }
+
+/* ── 颜色图例 ── */
+.color-legend {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.83rem;
+}
+.color-legend summary { font-weight: 600; color: var(--accent); cursor: pointer; }
+.legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; margin-top: 10px; }
+.legend-item { display: flex; align-items: baseline; gap: 6px; line-height: 1.6; }
+
+/* ── Insight 深度解读 ── */
+.insight-note {
+  margin: 0.8rem 0 1.2rem;
+  padding: 14px 18px;
+  background: var(--highlight-box);
+  border: 1px solid var(--highlight-border);
+  border-left: 4px solid var(--sem-green);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.insight-note .insight-label { font-size: 0.78rem; font-weight: 700; color: #166534; margin-bottom: 8px; }
+.insight-note p { margin: 4px 0; line-height: 1.8; }
+.insight-note ul, .insight-note ol { margin: 4px 0 4px 18px; }
+.insight-note li { margin-bottom: 3px; line-height: 1.7; }
+.insight-section { margin: 12px 0; padding: 8px 0; }
+.insight-section + .insight-section { border-top: 1px dashed var(--border); }
+.insight-h4 { font-size: 0.88rem; font-weight: 700; color: #5a2d2d; margin-bottom: 6px; }
+.insight-note table { font-size: 0.82rem; margin: 8px 0; width: 100%; }
+.insight-note table td, .insight-note table th { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+.insight-note table th { background: var(--accent); color: #fff; }
+
+/* ── 正文表格 ── */
+table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.9rem; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+table td, table th { padding:7px 12px; border-bottom:1px solid var(--border); text-align:left; }
+table tr:nth-child(even) { background:#f9f7f2; }
+table tr:first-child td, table tr:first-child th { background:var(--accent); color:#fff; font-weight:600; }
+table caption { caption-side:top; font-size:.83rem; color:var(--text-secondary); font-style:italic; margin-bottom:6px; text-align:left; }
+.insight-personal { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 0.9rem; }
+.insight-personal strong { color: #166534; }
+
+/* ── 图 ── */
+figure { margin:22px 0; text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+figure img { max-width:100%; height:auto; border-radius:4px; cursor:zoom-in; transition:box-shadow .2s; }
+figure img:hover { box-shadow:0 4px 16px rgba(0,0,0,.12); }
+figcaption { margin-top:10px; font-size:.83rem; color:var(--text-secondary); font-style:italic; line-height:1.5; }
+figcaption .fig-original { font-size: 0.8rem; color: var(--text-secondary); opacity: 0.8; }
+.figure-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:22px 0; }
+.figure-row figure { margin:0; }
+
+/* ── 公式 ── */
+.math-block { margin:16px 0; padding:12px 18px; background:#f4f1ea; border-left:3px solid var(--accent); border-radius:0 var(--radius) var(--radius) 0; overflow-x:auto; font-family:"JetBrains Mono","Fira Code",Consolas,monospace; }
+.math-note { font-size:.87rem; color:var(--text-secondary); margin-top:-6px; margin-bottom:12px; padding-left:8px; }
+
+/* ── 关键术语 ── */
+.key-term { font-weight:600; color:#8b3a3a; }
+
+/* ── Lightbox ── */
+.lightbox { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.88); cursor:zoom-out; justify-content:center; align-items:center; padding:24px; }
+.lightbox.active { display:flex; }
+.lightbox img { max-width:95vw; max-height:95vh; object-fit:contain; border-radius:4px; }
+.lightbox-close { position:absolute; top:16px; right:24px; color:#fff; font-size:2rem; cursor:pointer; opacity:.6; transition:opacity .2s; }
+.lightbox-close:hover { opacity:1; }
+
+/* ── Back-to-top ── */
+.back-to-top {
+  position: fixed; right: 24px; bottom: 24px;
+  width: 40px; height: 40px;
+  border: none; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 1.1rem; cursor: pointer; opacity: .75;
+  transition: opacity .2s; z-index: 95; font-family: inherit;
+}
+.back-to-top:hover { opacity: 1; }
+
+/* ── 响应式 ── */
+@media (max-width: 900px) {
+  .content { padding: 0 28px 60px; }
+}
+@media (max-width: 768px) {
+  .content { padding: 0 20px 60px; }
+  .toc-sidebar { display: none; }
+  .toc-toggle { display: block; }
+  .toc-sidebar.open {
+    display: block;
+    position: fixed;
+    top: 48px; left: 0;
+    width: 100%;
+    max-height: 50vh;
+    z-index: 200;
+    border-radius: 0;
+  }
+  .figure-row { grid-template-columns: 1fr; }
+  .page-header { padding: 24px 0 0; }
+  .page-header h1 { font-size: 1.25rem; }
+  .legend-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .legend-grid { grid-template-columns: 1fr; }
+  .figure-row { grid-template-columns: 1fr; }
+}
+
+/* ── 打印 ── */
+@media print {
+  .toggle-toolbar, .lightbox, .back-to-top, .toc-sidebar, .color-legend { display:none; }
+  .content { padding:0; }
+  body { max-width:100%; font-size:12pt; }
+  .insight-note { border:1px solid #ccc; box-shadow:none; }
+}
+</style>
+</head>
+<body>
+<nav class="toc-sidebar" id="toc-sidebar">
+  <div class="toc-title">目录导航</div>
+  <!-- TOC_LINKS -->
+</nav>
+<button class="toc-toggle" onclick="document.getElementById('toc-sidebar').classList.toggle('open')">目录</button>
+
+<div class="toggle-toolbar" id="toggle-toolbar">
+  <button class="toggle-btn active" data-target="original-text" title="显示/隐藏英文原文">
+    <span class="semantic-badge" style="background:#999"></span> 原文 EN
+  </button>
+  <button class="toggle-btn active" data-target="translated-text" title="显示/隐藏中文译文">
+    <span class="semantic-badge" style="background:#333"></span> 译文 ZH
+  </button>
+  <button class="toggle-btn active" data-target="insight-note" title="显示/隐藏解读笔记">
+    <span class="semantic-badge badge-green"></span> 笔记
+  </button>
+  <span class="toggle-sep"></span>
+  <button class="toggle-btn-all" data-action="expand-all">全部展开</button>
+  <button class="toggle-btn-all" data-action="collapse-all">全部折叠</button>
+</div>
+
+<main class="content">
+  <header class="page-header">
+    <h1><!-- 中文标题 --></h1>
+    <p class="sub"><!-- Original English Title --></p>
+    <p class="meta"><!-- 文献元信息 --></p>
+  </header>
+
+  <details class="color-legend" open>
+    <summary>颜色标注说明（6色语义编码）</summary>
+    <div class="legend-grid">
+      <div class="legend-item"><span class="semantic-badge badge-red"></span><strong>红色</strong> — 核心灵魂：研究问题、关键假设、核心结论、里程碑概念</div>
+      <div class="legend-item"><span class="semantic-badge badge-blue"></span><strong>蓝色</strong> — 方法基石：实验设计、关键参数、样本特征、核心数据</div>
+      <div class="legend-item"><span class="semantic-badge badge-green"></span><strong>绿色</strong> — 创新洞察：创新点、新框架、我的联想与思考</div>
+      <div class="legend-item"><span class="semantic-badge badge-yellow"></span><strong>黄色</strong> — 背景支撑：重要背景、相关研究、待验证结论</div>
+      <div class="legend-item"><span class="semantic-badge badge-purple"></span><strong>紫色</strong> — 批判反思：方法局限、结论局限、未来方向、自我批判</div>
+      <div class="legend-item"><span class="semantic-badge" style="background:#ccc"></span><strong>无色</strong> — 过渡/已知：一般描述、已掌握的基础知识、冗长论证</div>
+    </div>
+  </details>
+
+  <!-- CONTENT -->
+
+  <p style="margin-top:40px;color:var(--text-secondary);font-size:.83rem;border-top:1px solid var(--border);padding-top:16px;">
+  文献来源：<!-- Author et al. Title. Journal Year -->。图片由 MinerU 从原 PDF 提取。
+  </p>
+</main>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <span class="lightbox-close">&times;</span>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">↑</button>
+
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$'], ['\\[','\\]']], tags: 'ams' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.target;
+    const elements = document.querySelectorAll('.' + target);
+    const isActive = btn.classList.toggle('active');
+    elements.forEach(el => {
+      el.classList.toggle('hidden', !isActive);
+    });
+    if (target === 'original-text') {
+      document.querySelectorAll('.lang-divider').forEach(d => {
+        d.classList.toggle('hidden', !isActive);
+      });
+    }
+  });
+});
+
+document.querySelectorAll('.toggle-btn-all').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const action = btn.dataset.action;
+    const expand = action === 'expand-all';
+    document.querySelectorAll('.toggle-btn').forEach(b => {
+      b.classList.toggle('active', expand);
+    });
+    document.querySelectorAll('.original-text, .translated-text, .insight-note, .lang-divider')
+      .forEach(el => el.classList.toggle('hidden', !expand));
+    document.querySelector('.toc-sidebar')?.classList.toggle('hidden', !expand);
+  });
+});
+</script>
+</body>
+</html>

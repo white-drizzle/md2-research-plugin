@@ -1,0 +1,21 @@
+{
+  "name": "md2-research",
+  "interface": {
+    "displayName": "MD2 Research"
+  },
+  "plugins": [
+    {
+      "name": "md2-research",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+

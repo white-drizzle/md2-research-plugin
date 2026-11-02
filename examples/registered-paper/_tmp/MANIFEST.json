@@ -1,0 +1,26 @@
+{
+  "papers": [
+    {
+      "id": "P1",
+      "full_md": "_tmp/P1/raw/full.md",
+      "linked_md": "_tmp/P1/raw/linked.md",
+      "html": {
+        "current": "_tmp/P1/html/current.json",
+        "versions": [
+          {
+            "id": "html-example",
+            "output": "_tmp/P1/html/versions/html-example/P1_synthetic_2026.html"
+          }
+        ]
+      },
+      "deck": {
+        "current": "_tmp/P1/deck/current.json",
+        "versions": [
+          {
+            "id": "deck-example"
+          }
+        ]
+      }
+    }
+  ]
+}

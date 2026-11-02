@@ -1,0 +1,18 @@
+# Synthetic two-signal example
+
+This local fixture contains invented values, not research findings. Signal A
+is 1 arbitrary unit and signal B is 2 arbitrary units. Figure 1 shows the two
+signals as horizontal bars.
+
+![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAAC9klEQVR4nO3dwWkgQRAEQTkkh2TOma2XXBAHhSabCMqAhZ5878c3kPXx1x8A/D8BQ5iAIUzAECZgCBMwhAkYwgQMYQKGMAFDmIAhTMAQJmAIEzCECRjCBAxhAoYwAUOYgCFMwBAmYAgTMIQJGMIEDGEChjABQ5iAIUzAECZgCBMwhAkYwgQMYQKGMAFDmIAhTMAQJmAIEzCECRjCBAxhAoYwAUOYgCFMwBAmYAgTMIQJGMIEDGEChrBhwJ9f/+yX212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2wT8xHZX4DYBP7HdFbhNwE9sdwVuE/AT212B2/yZAcIEDGEChjABQ5iAIUzAECZgCBMwhAkYwgQMYQKGMAFDmIAhTMAQJmAIEzCECRjCBAxhAoYwAUOYgCFMwBAmYAgTMIQJGMIEDGEChjABQ5iAIUzAEOb3ohbb7sUWCdhi273YIgFbbLsXWyRgi233YosEbLHtXmyRgC223YstErDFtnuxRQK22HYvtkjAFtvuxRYJ2GLbvdgiAVtsuxdbJGCLbfdiiwRsse1ebJGALbbdiy0SsMW2e7FFArbYdi+2SMAW2+7FFgnYYtu92CIBW2y7F1skYItt92KLBGyx7V5skYAttt2LLRKwxbZ7sUUCtth2L7ZIwBbb7sUW+TMDhAkYwgQMYQKGMAFDmIAhTMAQJmAIEzCECRjCBAxhAoYwAUOYgCFMwBAmYAgTMIQJGMIEDGEChjABQ5iAIUzAECZgCBMwhAkYwgQMYQKGMAFDmIAhTMAQJmAIEzCECRjCBAxhAoYwAUOYgCFMwBAmYAgTMIQJGMIEDGEChjABQ5iAIUzAECZgCBMwhAkYwn4A2QfQWmXm2hMAAAAASUVORK5CYII=)
+
+Figure 1. Synthetic bars: upper bar is signal A (1 unit); lower bar is signal B (2 units).
+
+## Ratio
+
+The invented ratio is:
+
+$$ r = 2 / 1 = 2 \tag{1} $$
+
+This calculation demonstrates equation preservation only. No physical model,
+uncertainty estimate, journal metadata, or scientific conclusion is implied.

@@ -1,0 +1,49 @@
+---
+name: md2htmlnote
+description: 'Use when a MinerU-exported Markdown paper with images and LaTeX needs an HTML study report or a full bilingual parallel-reading page with semantic colors. Triggers: HTML阅读笔记, 核心解读, 学习汇报, 双语阅读, 对照翻译, 语义标注, 颜色编码, bilingual reading, parallel translation, comparative reading.'
+---
+
+# Markdown to HTML Reading Page
+
+Produce a source-grounded academic reading page with a sticky ToC, figures,
+MathJax formulas, and technical interpretation. Use one of two distinct modes:
+
+| Request | Mode | Read next | Locked template | Verifier |
+| --- | --- | --- | --- | --- |
+| Ordinary HTML note, core interpretation, advisor/study report; no explicit bilingual request | **report (default)** | [Report rules](references/report.md) | `template.html` | `verify.py` |
+| Explicit bilingual / parallel reading / 对照翻译 / 双语, or semantic color annotation | **bilingual** | [Bilingual rules](references/bilingual.md) | `bilingual/template.html` | `bilingual/verify.py` |
+
+An explicit bilingual request selects bilingual resources even when it also
+mentions notes, interpretation, or a report. If both outputs are requested,
+produce and verify each separately. Bilingual term annotations alone retain
+report mode. Modes are authoring choices, not script flags.
+
+Read [Common rules](references/common.md) and the selected mode's reference,
+then read its actual template before assembly. All command paths are relative
+to this skill root. Use the root `link_images.py` and `embed_base64.py` in either
+mode; do not look for copies under `bilingual/`.
+
+1. Resolve the paper's source and HTML version through `_tmp/MANIFEST.json`:
+   registered `linked_fixed_md` first, otherwise `linked_md`. Write to the
+   registered `P<n>/html/versions/<html-version>/` output and respect the
+   registered `html/current.json` pointer. Details are in the common rules.
+2. Copy the selected template's CSS, wrappers, controls, and JavaScript exactly;
+   fill only content slots. Preserve all substantive source content and audit
+   figures, tables, formulas, references, and back matter.
+3. Apply only the selected mode's content contract. **Report:** Chinese
+   interpretation with `.insight` boxes and sequential explicit `\tag{1}`,
+   `\tag{2}`, … on every display formula. **Bilingual:** full original/Chinese
+   paragraph pairs, two-level semantic colors, `.insight-note` analysis, and
+   working toggles; preserve source equation tags and allow originally
+   unnumbered derivations. English original text and captions are required in
+   bilingual mode.
+4. Save the complete HTML and run **only its mode's verifier**, with the resolved
+   source Markdown. Exit 0 is required; it does not replace the content audit.
+5. Perform native visual QA: open the real artifact, check loaded DOM, images
+   and MathJax, inspect desktop/mobile screenshots and controls, crop uncertain
+   regions, fix the generation source and re-render. The concise procedure and
+   failure reporting are in [Common rules](references/common.md#native-visual-qa).
+
+Return the mode, versioned artifact path, source path, verifier result, visual
+checks performed, and any unresolved or unverified items. Do not claim visual
+or formula-rendering success from a structural pass alone.

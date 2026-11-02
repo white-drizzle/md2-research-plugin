@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "title": "红外焊接技术研究综述",
+    "subtitle": "问题驱动的多维度分析",
+    "source_papers": "9 篇文献 (2017–2025)"
+  },
+  "slides": [
+    {
+      "slide_id": "s01",
+      "title": "为什么关注红外焊接？",
+      "claim": "红外焊接是柔性电子组装的优选热源，但面临光谱匹配与阴影效应两大挑战",
+      "body": [
+        { "type": "point", "lead": "相比对流焊/汽相焊：能量定向、设备简单、升降温可控", "detail": "FPCB/BGA/FHE 对热应力敏感", "so_what": "适合柔性电子低温组装", "fig_ref": "2b" },
+        { "type": "note", "term": "FHE", "explain": "柔性混合电子：柔性基板上集成刚性和柔性元件" }
+      ],
+      "figure": {
+        "path": "placeholder.png",
+        "caption": "材料透射光谱 vs NIR 光源能谱",
+        "bound_to": "s01_claim",
+        "interpretation": "PET 高透射、焊膏/银迹线高吸收——选择性加热的光学基础",
+        "source": "Source: Fig. 2b, [P9]"
+      },
+      "speaker_note": "红外焊接用光子直接耦合加热，比热风介质升温快。",
+      "layout": "point_figure"
+    },
+    {
+      "slide_id": "s02",
+      "title": "[P7] IPL 极速焊接：IMC 可控 + 跌落可靠性 2.68×",
+      "claim": "极速加热使 IMC 厚度精确可控，直接转化为跌落可靠性收益",
+      "body": [
+        { "type": "ced", "claim": "IMC 厚度与跌落可靠性线性反比", "evidence": ["IPL 8–16s 焊接", "IMC 1.2–4.7 μm 可控"], "data": "y = -36.17x + 321.50, R²=0.973 · 跌落 2.68×", "fig_ref": "10" }
+      ],
+      "figure": {
+        "path": "placeholder.png",
+        "caption": "跌落可靠性 vs IMC 厚度",
+        "bound_to": "s02_ced",
+        "interpretation": "跌落失效与 IMC 厚度线性反比——IMC 越薄可靠性越高",
+        "source": "Source: Fig. 10, [P7]"
+      },
+      "speaker_note": "IPL 可精确控制 IMC，2.68 倍可靠性 + 40% 节能。",
+      "layout": "claim_figure"
+    },
+    {
+      "slide_id": "s03",
+      "title": "[P4] 红外桌面回流炉：辐射主导低风速传热",
+      "claim": "低 Re 时辐射主导传热",
+      "body": [
+        { "type": "qa", "question": "为什么对称炉腔却温度不均？", "answer": "离心风扇扰流破坏对称，后部偏热、对称面偏冷 1.2×", "takeaway": "板位选择要靠 CFD，不能靠炉子对称直觉" }
+      ],
+      "speaker_note": "P4 揭示辐射主导低风速传热。",
+      "layout": "question_answer"
+    },
+    {
+      "slide_id": "s04",
+      "title": "[P2] 宽谱热源对比：卤素灯 vs 陶瓷加热器",
+      "body": [
+        { "type": "ced", "claim": "窄带与宽带热源存在明确的决策边界", "evidence": ["卤素灯加热快但均匀性差", "陶瓷加热器均匀但升温慢"], "data": "卤素 20–22°C/s · 陶瓷 3–4°C/s" }
+      ],
+      "table": {
+        "headers": ["指标", "NIR 卤素灯", "MIR 陶瓷"],
+        "rows": [
+          ["加热速率", "20–22°C/s", "3–4°C/s"],
+          ["PCB 不均匀度", "45–55°C", "8–13°C"]
+        ],
+        "col_widths": [2, 3, 3],
+        "note": "间距规律：每增加 10 mm，加热速率约减半"
+      },
+      "speaker_note": "P2 是唯一宽谱热源直接对比。陶瓷均匀、卤素快。",
+      "layout": "full_table"
+    },
+    {
+      "slide_id": "s05",
+      "title": "[P9] 材料透射光谱 vs NIR 光源能谱",
+      "body": [
+        { "type": "ced", "claim": "光谱匹配是选择性加热的光学基础", "evidence": ["PET 高透射", "焊膏/银迹线高吸收"], "data": "PET <5% · Cu ~32% 吸收", "fig_ref": "2b" }
+      ],
+      "figure": {
+        "path": "placeholder.png",
+        "caption": "材料透射光谱 vs NIR 光源能谱",
+        "bound_to": "s05_ced",
+        "interpretation": "PET 高透射、焊膏/银迹线高吸收——选择性加热的光学基础",
+        "source": "Source: Fig. 2b, [P9]"
+      },
+      "speaker_note": "PET 在 NIR 波段透射率高，焊膏与银迹线吸收近乎 0。",
+      "layout": "full_figure"
+    },
+    {
+      "slide_id": "s06",
+      "title": "[P9] 不同 NIR 条件焊点剪切力对比",
+      "body": [
+        { "type": "ced", "claim": "MET 焊点结合强度最优",
+          "evidence": ["三种 NIR 设置 LET/MET/HET", "剪切测试国际标准"],
+          "data": "MET 剪切力 ~18 N · LET/HET <10 N",
+          "fig_ref": "6" }
+      ],
+      "figure": {
+        "panels": [
+          { "path": "placeholder.png", "label": "(a)" },
+          { "path": "placeholder.png", "label": "(b)" },
+          { "path": "placeholder.png", "label": "(c)" }
+        ],
+        "caption": "不同 NIR 设置下 SMD 焊点剪切前后照片",
+        "subcaptions": "(a) 未受力; (b) 施加剪切力; (c) 剪断后界面",
+        "bound_to": "s06_ced",
+        "interpretation": "剪切力峰值直接反映焊点结合强度——MET 显著高于 LET/HET",
+        "source": "Source: Fig. 6, [P9]"
+      },
+      "speaker_note": "P9 多面板图：MinerU 拆成 3 个子图，统一图注。",
+      "layout": "multi_figure"
+    }
+  ]
+}
