@@ -26,7 +26,7 @@ codex plugin marketplace add white-drizzle/md2-research-plugin
 codex plugin add md2-research@md2-research
 ```
 
-本仓库为私有仓库，保留原 PPT 技能的访问范围。无需 MCP 服务或 CC Switch 配置。
+本仓库公开分发。无需 MCP 服务或 CC Switch 配置。
 
 ## 使用
 
