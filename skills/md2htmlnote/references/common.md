@@ -54,6 +54,11 @@ than rewriting unrelated fragments.
 
 ## Navigation, identity, and technical prose
 
+Apply [reading-experience.md](reading-experience.md) in both modes: source-grounded
+term explanations on hover/focus/tap, visible first-use definitions and units,
+and figures/tables interleaved with their explanatory body paragraphs. Copy
+the tooltip runtime from the selected template and fill its JSON dictionary.
+
 - Give every h2/h3 a unique ID and matching sidebar link; indent h3 links with
   `toc-h3`. Heading IDs and ToC targets must match in both directions.
 - Preserve the Chinese title, original title, available citation metadata,
@@ -62,14 +67,21 @@ than rewriting unrelated fragments.
   link with `target="_blank"`; omit unavailable fields. Mode-specific headers
   are defined in the selected reference.
 - Annotate a technical term's first occurrence in Chinese prose as
-  `<span class="key-term">中文术语（English Term）</span>`; use Chinese normally
-  thereafter. Explanations should address mechanisms, quantitative meaning,
+  `<span class="key-term term" data-term="term-key" tabindex="0">中文术语（English Term）</span>`;
+  repeated terms can use `.term` without repeating the English expansion.
+  Explanations should address mechanisms, quantitative meaning,
   and research relevance in professional academic Chinese. Retain source
   English in bilingual originals/captions and in titles, citations, references,
   symbols, and term annotations where needed.
 - End with the template's source citation footer, using real source details.
 
 ## Images and multi-panel figures
+
+Place the complete figure group directly after the body paragraph that explains
+it, in the relevant method/result section. The paragraph cites `图 N` and names
+what the reader should inspect. Do not use the template's instructional figure
+examples as a separate end-of-page gallery. Keep source-caption and panel rules
+below when moving the figure into its narrative context.
 
 MinerU emits image lines and captions separately. Pair an image pool with its
 nearest following `Figure`/`FIGURE` caption; exclude publisher logos and other
@@ -174,6 +186,9 @@ values; clearly distinguish any added synthesis from original data. Use the
 selected template's table styling without improvised cell styles. Retain
 LaTeX in cells for MathJax. Detailed caption and transcription rules differ
 by mode and are in the respective references.
+Place the table immediately after the paragraph explaining its conditions or
+comparison and citing `表 N`. Parameter headings state meaning and units and
+may carry `.term` triggers. Use a horizontal-overflow wrapper for wide tables.
 
 ## Content audit and structural gate
 
@@ -223,6 +238,8 @@ pass is not proof of content fidelity, source-image identity, or rendered math.
    navigation, lightbox open/close, and back-to-top. For bilingual output also
    exercise all language/note toggles, expand/collapse-all, legend, and mobile
    ToC; inspect paired highlights and reference numbering.
+   Exercise term hover/focus/tap, Escape/outside dismissal and popup placement
+   near viewport edges; inspect figure/table proximity to the explaining prose.
 4. Crop/zoom uncertain text or panels and compare with the source PDF/contact
    sheet. Fix the generator/content source, regenerate, rerun the verifier,
    and re-render the affected views until resolved.

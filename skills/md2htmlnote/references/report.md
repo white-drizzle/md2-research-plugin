@@ -55,6 +55,11 @@ claim.
 
 ## Sections and insights
 
+Apply [the shared reading contract](reading-experience.md): define terms in
+Chinese prose, add hover/focus/tap explanations for recurring terminology and
+abbreviations, and put each figure/table immediately after its explanatory
+paragraph. Do not append a default "原文图解" or "原文数据表" collection.
+
 Map source major/minor sections to h2/h3 and retain all substantive material.
 The normal report sequence is research abstract (`abs`, bullet summary plus
 one insight), introduction, methods, results/discussion, numbered conclusions,

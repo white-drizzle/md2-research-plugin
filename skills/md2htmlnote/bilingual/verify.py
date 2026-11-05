@@ -16,6 +16,10 @@ appendix presence). If omitted, only HTML-internal checks run.
 
 import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from reading_contract import check_reading_experience
 
 # -- hard-coded invariants from template.html (edit template first, then here) --
 LB_ONCLICK = ("document.getElementById('lb-img').src=this.src;"
@@ -83,7 +87,7 @@ class Verifier:
                        f"unknown inline highlight class: {mcls}")
 
         # ---- 5. key-term 双语注释存在 ----
-        self.check('class="key-term"' in html,
+        self.check(re.search(r'class="[^"]*\bkey-term\b[^"]*"', html),
                    "no <span class=\"key-term\"> found — 关键术语首次出现必须双语标注")
 
         # ---- 6. ToC <-> heading 对应 ----
@@ -170,6 +174,7 @@ class Verifier:
                 self.check(re.search(r'id="app"', html) or re.search(r"(?i)appendix", html),
                            "source has an Appendix but no appendix section found")
 
+        self.errors.extend(check_reading_experience(html))
         return not self.errors
 
     def check_insight_structure(self):
@@ -254,6 +259,7 @@ class Verifier:
     def check_figure_crossrefs(self):
         """图号双向引用：figcaption 的图号 ↔ 正文「图 N」引用。"""
         html = re.sub(r"<!--.*?-->", "", self.html, flags=re.S)
+        html = re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.S | re.I)
         caps = re.findall(r"<figcaption[^>]*>(.*?)</figcaption>", html, re.S)
         figure_nums = set()
         for c in caps:

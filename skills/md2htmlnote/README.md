@@ -13,6 +13,11 @@ provide ToC navigation and a lightbox; and use separate locked templates and
 verifiers. Embedded images work offline. MathJax 3 is loaded from CDN and
 requires network access for rendered formulas.
 
+Both also provide source-grounded explanations on term hover, keyboard focus
+and touch tap. Figures and tables follow the body paragraphs that explain
+their conditions or findings. First-use definitions and parameter units remain
+visible in the prose and table headings. See [reading experience](references/reading-experience.md).
+
 ## Invoke
 
 In Codex, use a prompt such as:
@@ -38,6 +43,9 @@ md2htmlnote/
   template.html              report template (locked)
   verify.py                  report gate
   test_verify.py             report regression suite
+  reading_contract.py        shared term/visual-proximity checks
+  test_reading_experience.py  shared reading-experience regressions
+  references/reading-experience.md  tooltip markup and narrative placement
   bilingual/template.html    bilingual template (locked)
   bilingual/verify.py         bilingual gate
   bilingual/test_verify.py    bilingual regression suite

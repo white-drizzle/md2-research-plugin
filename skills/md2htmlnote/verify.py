@@ -18,6 +18,7 @@ acknowledgement / appendix presence). If omitted, only HTML-internal checks run.
 
 import re
 import sys
+from reading_contract import check_reading_experience
 
 # -- hard-coded invariants from template.html (edit template first, then here) --
 LB_ONCLICK = ("document.getElementById('lb-img').src=this.src;"
@@ -151,6 +152,8 @@ class Verifier:
         # ---- 9. figure captions <-> in-text 图 N cross-references ----
         self.check_figure_crossrefs()
 
+        self.errors.extend(check_reading_experience(html))
+
         return not self.errors
 
     def check_figure_rows(self):
@@ -207,6 +210,7 @@ class Verifier:
         are skipped.
         """
         html = re.sub(r"<!--.*?-->", "", self.html, flags=re.S)
+        html = re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.S | re.I)
         caps = re.findall(r"<figcaption[^>]*>(.*?)</figcaption>", html, re.S)
         figure_nums = set()
         for c in caps:

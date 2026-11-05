@@ -18,7 +18,7 @@ mentions notes, interpretation, or a report. If both outputs are requested,
 produce and verify each separately. Bilingual term annotations alone retain
 report mode. Modes are authoring choices, not script flags.
 
-Read [Common rules](references/common.md) and the selected mode's reference,
+Read [Common rules](references/common.md), [reading experience](references/reading-experience.md), and the selected mode's reference,
 then read its actual template before assembly. All command paths are relative
 to this skill root. Use the root `link_images.py` and `embed_base64.py` in either
 mode; do not look for copies under `bilingual/`.
@@ -30,6 +30,11 @@ mode; do not look for copies under `bilingual/`.
 2. Copy the selected template's CSS, wrappers, controls, and JavaScript exactly;
    fill only content slots. Preserve all substantive source content and audit
    figures, tables, formulas, references, and back matter.
+   Build a source-grounded term dictionary and mark recurring technical terms,
+   abbreviations and parameter headers for hover/focus/tap explanations. Place
+   each figure/table after its explanatory paragraph in the corresponding
+   body section; keep original numbers, units and data. See the shared reading
+   contract for the exact markup and placement recipe.
 3. Apply only the selected mode's content contract. **Report:** Chinese
    interpretation with `.insight` boxes and sequential explicit `\tag{1}`,
    `\tag{2}`, … on every display formula. **Bilingual:** full original/Chinese

@@ -47,7 +47,7 @@ def run_pdf2md_tests():
 
 def main():
     suites = {
-        "report": (SKILLS / "md2htmlnote", ["test_verify.py"]),
+        "report": (SKILLS / "md2htmlnote", ["-m", "unittest", "test_verify", "test_reading_experience"]),
         "bilingual": (SKILLS / "md2htmlnote", ["bilingual/test_verify.py"]),
         "pdf2md": (SKILLS / "pdf2md", [str(Path(__file__).resolve()), "--pdf2md-worker"]),
         "md2pptnote": (SKILLS / "md2pptnote", ["tests/run_all.py"]),

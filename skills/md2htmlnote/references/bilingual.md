@@ -80,6 +80,11 @@ than repeat paragraph summaries. Do not fabricate comparison data.
 
 ## Figures, tables, and references
 
+Apply [the shared reading contract](reading-experience.md). Put each visual
+after the complete EN/ZH paragraph pair that explains it, before the related
+insight. Use shared term definitions for annotated occurrences in both
+languages; keep the original wording and paragraph pairing intact.
+
 Follow the common six-step figure protocol. A figure's Chinese description
 is followed by the **verbatim English source caption** in
 `<span class="fig-original">(Original: ...)</span>` within its `<figcaption>`.
@@ -89,11 +94,12 @@ Chinese sub-descriptions in the bilingual verifier. Cite each figure in Chinese
 body text as `图 N`, even when the paired English paragraph says `Figure N`.
 
 Transcribe every source table and retain its original `Table N` number, data,
-units, and math. Use `表 N &mdash; 中文标题` plus `fig-original` English title
-above the table, with the template's horizontal-overflow wrapper when needed.
+units, and math. Use an internal `<caption>表 N &mdash; 中文标题
+<span class="fig-original">Original English title</span></caption>` at the top
+of the table, with a horizontal-overflow wrapper when needed.
 MinerU's raw `<table><tr><td>...` need not be converted to thead/tbody: the
 bilingual CSS styles the first row. Keep `$...$` in cells for MathJax, and
-cite `表 N` in body text (the verifier does not enforce table citations).
+cite `表 N` in the immediately preceding explanatory body paragraph.
 Clearly mark any additional analysis table as synthesis, not a numbered
 source table. Preserve all reference entries and citation identifiers; use
 the common rule preventing double numbering of `[N]` entries.

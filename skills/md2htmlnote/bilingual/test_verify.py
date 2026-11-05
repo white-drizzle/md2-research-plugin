@@ -35,8 +35,11 @@ def minimal_page(extra="", img_src="https://cdn.example.com/fig1.jpg"):
     <nav class="toc-sidebar" id="toc-sidebar"><div class="toc-title">目录导航</div>
       <a href="#s1">1. 引言</a></nav>
     <main class="content">
+      <script id="term-definitions" type="application/json">{{"quartz":{{"title":"石英","description":"本例中的石英材料。"}}}}</script>
+      <div id="term-tooltip" role="tooltip" hidden><strong class="term-tooltip-title"></strong><div class="term-tooltip-description"></div></div>
+      <script id="term-tooltip-runtime">/* fixture */</script>
       <h2 id="s1">1. 引言</h2>
-      <p>如图 1 所示。</p>
+      <p><span class="term" data-term="quartz" tabindex="0">Quartz</span></p>
       <div class="bilingual-block color-blue">
         <div class="original-text"><p>The furnace has <mark class="hl-blue">six tubes</mark>.</p></div>
         <div class="lang-divider"><span class="lang-tag">译文</span></div>
@@ -47,6 +50,7 @@ def minimal_page(extra="", img_src="https://cdn.example.com/fig1.jpg"):
         <div class="insight-section"><h4 class="insight-h4">物理机制</h4><p>解释。</p></div>
         <div class="insight-personal"><strong>💡 个人思考</strong><p>联想。</p></div>
       </div>
+      <p>如图 1 所示。</p>
       <figure>
         <img src="{img_src}" alt="Fig 1" loading="lazy"
              onclick="document.getElementById('lb-img').src=this.src;document.getElementById('lightbox').classList.add('active')"

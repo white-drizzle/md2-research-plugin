@@ -315,6 +315,43 @@ figcaption .fig-original { font-size: 0.8rem; color: var(--text-secondary); opac
   body { max-width:100%; font-size:12pt; }
   .insight-note { border:1px solid #ccc; box-shadow:none; }
 }
+
+/* ── 术语解释 ── */
+.term[data-term][tabindex="0"] {
+  text-decoration: underline dotted;
+  text-underline-offset: .18em;
+  cursor: help;
+}
+.term[data-term][tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+#term-tooltip {
+  position: fixed;
+  z-index: 10000;
+  width: max-content;
+  max-width: min(360px, calc(100% - 24px));
+  max-height: min(320px, calc(100vh - 24px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 4px 18px rgba(0,0,0,.16);
+  font-size: .85rem;
+  line-height: 1.65;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#term-tooltip[hidden] { display: none; }
+#term-tooltip .term-tooltip-title { display: block; font-weight: 700; }
+#term-tooltip .term-tooltip-description { margin-top: 6px; white-space: pre-line; }
+@media print { #term-tooltip { display: none; } }
+
 </style>
 </head>
 <body>
@@ -407,5 +444,149 @@ document.querySelectorAll('.toggle-btn-all').forEach(btn => {
   });
 });
 </script>
+
+<div id="term-tooltip" role="tooltip" hidden>
+  <strong class="term-tooltip-title"></strong>
+  <div class="term-tooltip-description"></div>
+</div>
+<!-- FILL: Replace {} with the source-grounded term dictionary: {key: {title, description}}. -->
+<script id="term-definitions" type="application/json">{}</script>
+<script id="term-tooltip-runtime">
+(() => {
+  const tooltip = document.getElementById('term-tooltip');
+  const title = tooltip.querySelector('.term-tooltip-title');
+  const description = tooltip.querySelector('.term-tooltip-description');
+  let definitions;
+  try {
+    definitions = JSON.parse(document.getElementById('term-definitions').textContent);
+  } catch (error) {
+    console.error('Cannot parse #term-definitions:', error);
+    return;
+  }
+  const selector = '.term[data-term][tabindex="0"]';
+  let activeTerm = null;
+  let hoveredTerm = null;
+  let overTooltip = false;
+  let closeTimer;
+
+  const termAt = target => target instanceof Element ? target.closest(selector) : null;
+
+  function closeTooltip() {
+    clearTimeout(closeTimer);
+    if (activeTerm) {
+      const ids = (activeTerm.getAttribute('aria-describedby') || '')
+        .split(/\s+/).filter(id => id && id !== tooltip.id);
+      if (ids.length) activeTerm.setAttribute('aria-describedby', ids.join(' '));
+      else activeTerm.removeAttribute('aria-describedby');
+    }
+    tooltip.hidden = true;
+    activeTerm = null;
+    overTooltip = false;
+  }
+
+  function positionTooltip() {
+    const anchor = activeTerm.getBoundingClientRect();
+    const popup = tooltip.getBoundingClientRect();
+    const margin = 12;
+    const width = document.documentElement.clientWidth;
+    const height = window.innerHeight;
+    let minLeft = margin;
+    let maxLeft = width - popup.width - margin;
+    const content = activeTerm.closest('.content')?.getBoundingClientRect();
+    if (content && popup.width <= Math.min(content.right, width - margin) - Math.max(content.left, margin)) {
+      minLeft = Math.max(content.left, margin);
+      maxLeft = Math.min(content.right, width - margin) - popup.width;
+    }
+    const left = anchor.left + (anchor.width - popup.width) / 2;
+    let top = anchor.bottom + 8;
+    if (top + popup.height > height - margin) top = anchor.top - popup.height - 8;
+    tooltip.style.left = Math.max(minLeft, Math.min(left, maxLeft)) + 'px';
+    tooltip.style.top = Math.max(margin, Math.min(top, height - popup.height - margin)) + 'px';
+  }
+
+  function openTooltip(term) {
+    const entry = definitions && definitions[term.dataset.term];
+    if (!entry || typeof entry.title !== 'string' || !entry.title.trim()
+        || typeof entry.description !== 'string' || !entry.description.trim()) return;
+    clearTimeout(closeTimer);
+    if (activeTerm === term) return;
+    closeTooltip();
+    activeTerm = term;
+    title.textContent = entry.title;
+    description.textContent = entry.description;
+    tooltip.scrollTop = 0;
+    tooltip.hidden = false;
+    positionTooltip();
+    const ids = (term.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+    if (!ids.includes(tooltip.id)) ids.push(tooltip.id);
+    term.setAttribute('aria-describedby', ids.join(' '));
+  }
+
+  function scheduleClose() {
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      if (activeTerm && hoveredTerm !== activeTerm && !overTooltip
+          && !activeTerm.contains(document.activeElement)) closeTooltip();
+    }, 180);
+  }
+
+  document.addEventListener('pointerover', event => {
+    if (event.pointerType === 'touch') return;
+    const term = termAt(event.target);
+    if (!term || term.contains(event.relatedTarget)) return;
+    hoveredTerm = term;
+    openTooltip(term);
+  });
+
+  document.addEventListener('pointerout', event => {
+    if (event.pointerType === 'touch') return;
+    const term = termAt(event.target);
+    if (!term || term.contains(event.relatedTarget)) return;
+    if (hoveredTerm === term) hoveredTerm = null;
+    if (activeTerm === term) scheduleClose();
+  });
+
+  tooltip.addEventListener('pointerenter', event => {
+    overTooltip = true;
+    clearTimeout(closeTimer);
+  });
+  tooltip.addEventListener('pointerleave', event => {
+    overTooltip = false;
+    if (event.pointerType !== 'touch') scheduleClose();
+  });
+
+  document.addEventListener('focusin', event => {
+    const term = termAt(event.target);
+    if (term) openTooltip(term);
+  });
+  document.addEventListener('focusout', event => {
+    if (termAt(event.target) === activeTerm) scheduleClose();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      closeTooltip();
+      return;
+    }
+    const term = termAt(event.target);
+    if (term && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      if (activeTerm === term) closeTooltip();
+      else openTooltip(term);
+    }
+  });
+  document.addEventListener('click', event => {
+    const term = termAt(event.target);
+    if (term) openTooltip(term);
+    else if (tooltip.contains(event.target)) clearTimeout(closeTimer);
+    else closeTooltip();
+  });
+
+  window.addEventListener('scroll', event => {
+    if (!(event.target instanceof Node) || !tooltip.contains(event.target)) closeTooltip();
+  }, true);
+  window.addEventListener('resize', closeTooltip);
+})();
+</script>
+
 </body>
 </html>

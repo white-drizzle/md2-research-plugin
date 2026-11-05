@@ -1,6 +1,6 @@
 {
   "name": "md2-research",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A local literature workflow: PDF to Markdown, HTML reading pages, and academic PPTX.",
   "author": {
     "name": "white-drizzle"
