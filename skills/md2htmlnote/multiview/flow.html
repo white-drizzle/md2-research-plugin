@@ -1,0 +1,165 @@
+<style>
+.flow-guide {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow-wrap: anywhere;
+}
+.flow-picker { min-width: 0; margin: 0; padding: 0; border: 0; }
+.flow-picker legend { margin-bottom: .45rem; padding: 0; font-weight: 700; }
+.flow-track {
+  --stage-gap: .9rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(min(100%, 9rem), 1fr);
+  gap: var(--stage-gap);
+  overflow-x: auto;
+  scroll-padding-inline: .25rem;
+  padding: .25rem .25rem .5rem;
+}
+.flow-stop { position: relative; display: grid; min-width: 0; }
+.flow-stop:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 100%;
+  width: var(--stage-gap);
+  border-top: 1px solid var(--muted);
+  pointer-events: none;
+}
+.flow-stop input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.flow-face {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  padding: .65rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: .35rem;
+  background: var(--surface);
+  line-height: 1.4;
+}
+.flow-order { flex: none; font-size: .85em; font-variant-numeric: tabular-nums; }
+.flow-stop:hover .flow-face { border-color: var(--teal); }
+.flow-stop input:checked + .flow-face {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: var(--surface);
+  font-weight: 700;
+}
+.flow-stop input:focus-visible + .flow-face, .flow-guide a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.flow-panel {
+  margin-top: .65rem;
+  padding: clamp(.85rem, 2vw, 1.4rem);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--teal);
+  border-radius: .35rem;
+  background: var(--paper);
+}
+.flow-panel h2 { margin: 0 0 .7rem; font-size: 1.22rem; line-height: 1.4; }
+.flow-body { display: grid; gap: 1rem; align-items: start; }
+.flow-body dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: .45rem .85rem;
+  margin: 0;
+  line-height: 1.65;
+}
+.flow-body dt { color: var(--muted); font-weight: 650; }
+.flow-body dd { margin: 0; }
+.flow-evidence { min-width: 0; overflow-x: auto; }
+.flow-evidence:empty { display: none; }
+.flow-evidence > :first-child { margin-top: 0; }
+.flow-evidence :is(th, td) { min-width: 3.5em; }
+.flow-sources { margin-top: .85rem; }
+@media (min-width: 46rem) {
+  .flow-body:has(.flow-evidence > *) { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+}
+@media (max-width: 36rem) {
+  .flow-track { --stage-gap: .55rem; grid-auto-columns: minmax(min(100%, 7.5rem), 1fr); }
+  .flow-face { gap: .35rem; padding: .5rem; }
+  .flow-body dl { gap: .35rem .6rem; }
+}
+</style>
+<section class="flow-guide" aria-label="流程导读">
+  <fieldset class="flow-picker">
+    <legend>流程阶段</legend>
+    <div class="flow-track"></div>
+  </fieldset>
+  <p class="flow-empty" hidden>暂无流程阶段。</p>
+  <div class="flow-panels"></div>
+</section>
+<template id="flow-stage-template">
+  <label class="flow-stop">
+    <input type="radio" name="flow-stage">
+    <span class="flow-face"><span class="flow-order" aria-hidden="true"></span><span class="flow-name"></span></span>
+  </label>
+  <article class="flow-panel">
+    <h2 data-field="title"></h2>
+    <div class="flow-body">
+      <dl>
+        <dt>输入</dt><dd data-field="input"></dd>
+        <dt>操作</dt><dd data-field="action"></dd>
+        <dt>输出</dt><dd data-field="output"></dd>
+        <dt>文中作用</dt><dd data-field="role"></dd>
+      </dl>
+      <div class="flow-evidence"></div>
+    </div>
+    <div class="flow-sources"></div>
+  </article>
+</template>
+<script>
+(() => {
+  const track = document.querySelector(".flow-track");
+  const panels = document.querySelector(".flow-panels");
+  const template = document.getElementById("flow-stage-template");
+  if (!Guide.data.length) {
+    track.closest("fieldset").hidden = true;
+    document.querySelector(".flow-empty").hidden = false;
+    return;
+  }
+
+  let currentPanel;
+  Guide.data.forEach((item, index) => {
+    const stage = template.content.cloneNode(true);
+    const label = stage.querySelector("label");
+    const radio = label.querySelector("input");
+    const panel = stage.querySelector("article");
+    const heading = panel.querySelector("h2");
+    panel.id = "flow-panel-" + index;
+    heading.id = panel.id + "-title";
+    panel.setAttribute("aria-labelledby", heading.id);
+    radio.setAttribute("aria-controls", panel.id);
+
+    for (const field of panel.querySelectorAll("[data-field]")) {
+      Guide.text(field, item[field.dataset.field]);
+    }
+    Guide.evidence(panel.querySelector(".flow-evidence"), item);
+    Guide.links(panel.querySelector(".flow-sources"), item);
+    label.querySelector(".flow-order").textContent = index + 1;
+    label.querySelector(".flow-name").textContent = heading.textContent;
+
+    radio.checked = index === 0;
+    panel.hidden = !radio.checked;
+    if (radio.checked) currentPanel = panel;
+    radio.addEventListener("change", () => {
+      currentPanel.hidden = true;
+      panel.hidden = false;
+      currentPanel = panel;
+      label.scrollIntoView({block: "nearest", inline: "nearest"});
+    });
+    track.append(label);
+    panels.append(panel);
+  });
+})();
+</script>

@@ -1,0 +1,173 @@
+<style>
+.depth-guide {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow-wrap: anywhere;
+}
+.depth-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem .9rem;
+  padding: .25rem 0 .75rem;
+  border-bottom: 2px solid var(--ink);
+}
+.depth-toolbar[hidden] { display: none; }
+.depth-presets {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .2rem;
+  padding: .2rem;
+  border: 1px solid var(--line);
+  border-radius: .35rem;
+  background: var(--paper);
+}
+.depth-presets button {
+  padding: .4rem .65rem;
+  border: 0;
+  border-radius: .22rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.depth-presets button:hover { box-shadow: inset 0 0 0 1px var(--teal); }
+.depth-presets button[aria-pressed="true"] { background: var(--teal); color: var(--surface); font-weight: 700; }
+.depth-guide :is(button, summary, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.depth-state { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.depth-topic {
+  display: grid;
+  grid-template-columns: minmax(8rem, 21%) minmax(0, 1fr);
+  align-items: start;
+  gap: .55rem clamp(1rem, 3vw, 2.2rem);
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.depth-topic h2 { margin: 0; font-size: 1.25rem; line-height: 1.4; }
+.depth-condition { margin: .5rem 0 0; color: var(--muted); font-size: .9rem; line-height: 1.55; }
+.depth-condition strong { display: block; color: var(--teal); }
+.depth-main { min-width: 0; }
+.depth-conclusion { margin: 0; font-size: 1.03rem; line-height: 1.7; }
+.depth-folds { display: flex; flex-wrap: wrap; align-items: start; gap: .15rem 1rem; margin-top: .35rem; }
+.depth-folds details { min-width: 0; max-width: 100%; }
+.depth-folds details[open] { flex: 0 0 100%; }
+.depth-folds summary {
+  width: fit-content;
+  padding: .35rem .2rem;
+  color: var(--teal);
+  font-size: .92rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.depth-folds summary:hover { text-decoration: underline; text-underline-offset: .2em; }
+.depth-detail { margin: .15rem 0 .45rem; padding-inline-start: .85rem; border-inline-start: 2px solid var(--line); }
+.depth-detail p { margin: 0; line-height: 1.65; }
+.depth-evidence { min-width: 0; overflow-x: auto; }
+.depth-evidence:empty { display: none; }
+.depth-evidence :is(th, td) { min-width: 3.5em; }
+.depth-sources { margin-top: .45rem; }
+@media (max-width: 40rem) {
+  .depth-topic { grid-template-columns: minmax(0, 1fr); padding-block: .85rem; }
+  .depth-condition { margin-top: .2rem; }
+  .depth-condition strong { display: inline; margin-inline-end: .4em; }
+  .depth-presets button { padding: .4rem .45rem; font-size: .85rem; }
+}
+</style>
+<section class="depth-guide" aria-label="分层精读">
+  <div class="depth-toolbar">
+    <strong id="depth-label">阅读深度</strong>
+    <div class="depth-presets" role="group" aria-labelledby="depth-label">
+      <button type="button" data-level="1" aria-pressed="true">只读结论</button>
+      <button type="button" data-level="2" aria-pressed="false">结论＋机制</button>
+      <button type="button" data-level="3" aria-pressed="false">结论＋机制＋证据</button>
+    </div>
+    <span class="depth-state" role="status"></span>
+  </div>
+  <p class="depth-empty" hidden>暂无精读主题。</p>
+  <div class="depth-topics"></div>
+</section>
+<template id="depth-topic-template">
+  <article class="depth-topic">
+    <header>
+      <h2 data-field="title"></h2>
+      <p class="depth-condition"><strong>适用条件</strong><span data-field="condition"></span></p>
+    </header>
+    <div class="depth-main">
+      <p class="depth-conclusion" data-field="conclusion"></p>
+      <div class="depth-folds">
+        <details data-layer="2">
+          <summary>机制</summary>
+          <div class="depth-detail"><p data-field="mechanism"></p></div>
+        </details>
+        <details data-layer="3">
+          <summary>证据</summary>
+          <div class="depth-detail">
+            <p data-field="evidence"></p>
+            <div class="depth-evidence"></div>
+          </div>
+        </details>
+      </div>
+      <div class="depth-sources"></div>
+    </div>
+  </article>
+</template>
+<script>
+(() => {
+  const topics = document.querySelector(".depth-topics");
+  const template = document.getElementById("depth-topic-template");
+  const count = Guide.data.length;
+  if (!count) {
+    document.querySelector(".depth-toolbar").hidden = true;
+    document.querySelector(".depth-empty").hidden = false;
+    return;
+  }
+
+  Guide.data.forEach((item, index) => {
+    const topic = template.content.firstElementChild.cloneNode(true);
+    for (const field of topic.querySelectorAll("[data-field]")) {
+      Guide.text(field, item[field.dataset.field]);
+    }
+    const heading = topic.querySelector("h2");
+    heading.id = "depth-topic-" + index;
+    topic.setAttribute("aria-labelledby", heading.id);
+    for (const summary of topic.querySelectorAll("summary")) {
+      summary.setAttribute("aria-label", summary.textContent + " · " + heading.textContent);
+    }
+    Guide.evidence(topic.querySelector(".depth-evidence"), item);
+    Guide.links(topic.querySelector(".depth-sources"), item);
+    topics.append(topic);
+  });
+
+  const presets = document.querySelectorAll(".depth-presets button");
+  const folds = topics.querySelectorAll("details");
+  const status = document.querySelector(".depth-state");
+
+  function syncDepth() {
+    const mechanisms = topics.querySelectorAll('details[data-layer="2"][open]').length;
+    const evidence = topics.querySelectorAll('details[data-layer="3"][open]').length;
+    let level = "";
+    if (!mechanisms && !evidence) level = "1";
+    if (mechanisms === count && !evidence) level = "2";
+    if (mechanisms === count && evidence === count) level = "3";
+    for (const button of presets) {
+      button.setAttribute("aria-pressed", String(button.dataset.level === level));
+    }
+    const message = level ? "" : `按主题展开 · 机制 ${mechanisms}/${count}，证据 ${evidence}/${count}`;
+    if (status.textContent !== message) status.textContent = message;
+  }
+
+  for (const button of presets) {
+    button.addEventListener("click", () => {
+      for (const fold of folds) {
+        fold.open = Number(fold.dataset.layer) <= Number(button.dataset.level);
+      }
+      syncDepth();
+    });
+  }
+  for (const fold of folds) fold.addEventListener("toggle", syncDepth);
+  syncDepth();
+})();
+</script>

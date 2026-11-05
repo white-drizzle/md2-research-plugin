@@ -1,7 +1,10 @@
 # md2htmlnote
 
 Convert MinerU-exported academic Markdown into a source-grounded HTML reading
-page. The single entry supports two modes:
+page. The default single-file note opens in a paper graph and offers a
+paper-specific flow, layered reading and the complete analytical reader.
+Guide links open their source section or exhibit within the note. The
+complete reader supports two content modes:
 
 | Mode | Use | Distinct behavior |
 | --- | --- | --- |
@@ -41,6 +44,9 @@ md2htmlnote/
   references/report.md
   references/bilingual.md
   template.html              report template (locked)
+  build_multiview.py         assemble the registered four-view note
+  multiview/                 navigation shell and embedded guide templates
+  references/multiview.md    authoring schema, build and navigation QA
   verify.py                  report gate
   test_verify.py             report regression suite
   reading_contract.py        shared term/visual-proximity checks
@@ -65,6 +71,7 @@ is needed. Replace bracketed arguments with resolved paths.
 ```text
 python verify.py "<report.html>" "<source.md>"
 python bilingual/verify.py "<bilingual.html>" "<source.md>"
+python build_multiview.py "<reader.html>" "<guides.json>" -o "<registered-note.html>" --pdf "<source.pdf>"
 python -B test_verify.py
 python -B bilingual/test_verify.py
 python embed_base64.py "<output.html>" --images-dir "<registered-raw-images-dir>"

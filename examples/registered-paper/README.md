@@ -45,3 +45,17 @@ with the new paper. The deck placeholder lists its existing artifact names.
 No registry manager or project-specific layout checker is bundled here.
 Publishing or pushing paper artifacts requires a separate explicit user
 request and destination.
+
+## Try the four-view reader
+
+Run this command from the repository root. It packages the small reader,
+the synthetic paper graph, two calculation steps and two layered topics.
+The existing registered PNG is embedded in the result.
+
+```text
+python skills/md2htmlnote/build_multiview.py examples/registered-paper/reader-example.html examples/registered-paper/guide-example.json -o signal-note.html
+```
+
+Open `signal-note.html`, select an evidence node and follow its reader link.
+Use the return control to resume the same view. Use the full report or
+bilingual template for a research paper.

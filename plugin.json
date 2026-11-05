@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "md2-research",
-  "version": "0.1.2",
-  "description": "A local literature workflow: PDF to Markdown, HTML reading pages, and academic PPTX.",
+  "version": "0.2.0",
+  "description": "从论文 PDF 生成 Markdown、四视图 HTML 阅读笔记和中文学术汇报 PPTX。",
   "author": {
     "name": "white-drizzle"
   },
@@ -11,8 +11,8 @@
     "com.openai": {
       "interface": {
         "displayName": "MD2 Research",
-        "shortDescription": "PDF、阅读笔记与汇报PPT",
-        "longDescription": "Parse academic PDFs, create Chinese reports or bilingual reading pages, and build source-grounded presentation decks.",
+        "shortDescription": "论文鸟瞰、四视图精读与组会 PPT",
+        "longDescription": "从论文鸟瞰图进入方法和证据，按流程或深度选读，在同一份 HTMLnote 中核对原图、数据表与公式，并整理成中文汇报 PPTX。",
         "developerName": "white-drizzle",
         "category": "Productivity",
         "capabilities": [

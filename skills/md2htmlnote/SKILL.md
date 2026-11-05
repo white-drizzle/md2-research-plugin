@@ -5,8 +5,9 @@ description: 'Use when a MinerU-exported Markdown paper with images and LaTeX ne
 
 # Markdown to HTML Reading Page
 
-Produce a source-grounded academic reading page with a sticky ToC, figures,
-MathJax formulas, and technical interpretation. Use one of two distinct modes:
+Produce one HTMLnote that opens with **文献鸟瞰** and switches between the
+paper graph, paper-specific flow, layered reading and **精读解析**. Select
+one of two content modes for the complete analytical reader:
 
 | Request | Mode | Read next | Locked template | Verifier |
 | --- | --- | --- | --- | --- |
@@ -42,13 +43,21 @@ mode; do not look for copies under `bilingual/`.
    working toggles; preserve source equation tags and allow originally
    unnumbered derivations. English original text and captions are required in
    bilingual mode.
-4. Save the complete HTML and run **only its mode's verifier**, with the resolved
-   source Markdown. Exit 0 is required; it does not replace the content audit.
-5. Perform native visual QA: open the real artifact, check loaded DOM, images
+4. Save the complete reader to an authoring file. Follow
+   [Four-view HTMLnote](references/multiview.md) to write the paper-specific
+   guide JSON. Run `build_multiview.py reader.html guides.json -o <registered-output>`
+   (add `--pdf <source.pdf>` when available). Deliver the resulting single
+   file by default. When explicitly asked for the standalone reader, deliver
+   the selected content-mode output directly.
+5. Run **only the selected content mode's verifier** on the registered output
+   with its resolved source Markdown. Check the guide claims, evidence,
+   reader anchors and PDF pages against the same paper.
+6. Perform native visual QA: open the real artifact, check loaded DOM, images
    and MathJax, inspect desktop/mobile screenshots and controls, crop uncertain
    regions, fix the generation source and re-render. The concise procedure and
    failure reporting are in [Common rules](references/common.md#native-visual-qa).
 
-Return the mode, versioned artifact path, source path, verifier result, visual
+Follow a guide link to its specific section, figure or table, then return and
+check the selected node, stage or expanded topics. Return the mode, versioned artifact path, source path, verifier result, visual
 checks performed, and any unresolved or unverified items. Do not claim visual
 or formula-rendering success from a structural pass alone.

@@ -1,0 +1,117 @@
+{
+  "title": "Synthetic two-signal example",
+  "summary": "Figure 1 shows two invented signal values. Equation (1) uses them to calculate the ratio of signal B to signal A.",
+  "flow_label": "Calculate B/A",
+  "overview": {
+    "root": "two-signals",
+    "nodes": [
+      {
+        "id": "two-signals",
+        "label": "Two signals",
+        "kind": "root",
+        "group": "",
+        "summary": "The example gives a value for each signal and calculates their ratio.",
+        "detail": "Figure 1 identifies signals A and B. Equation (1) divides B by A.",
+        "anchor": "s1"
+      },
+      {
+        "id": "bars",
+        "label": "Read Figure 1",
+        "kind": "branch",
+        "group": "bars",
+        "summary": "The two horizontal bars represent signals A and B.",
+        "detail": "Use the caption to match each bar to its signal and value.",
+        "anchor": "fig-1"
+      },
+      {
+        "id": "ratio",
+        "label": "Read Equation (1)",
+        "kind": "branch",
+        "group": "ratio",
+        "summary": "The ratio compares signal B with signal A.",
+        "detail": "B goes in the numerator and A in the denominator.",
+        "anchor": "s2"
+      },
+      {
+        "id": "bar-order",
+        "label": "Upper A, lower B",
+        "kind": "evidence",
+        "group": "bars",
+        "summary": "The upper bar represents A and the lower bar represents B.",
+        "detail": "The caption assigns 1 arbitrary unit to A and 2 arbitrary units to B.",
+        "anchor": "fig-1"
+      },
+      {
+        "id": "division",
+        "label": "Divide B by A",
+        "kind": "method",
+        "group": "ratio",
+        "summary": "Substitute the values into r = B/A.",
+        "detail": "Equation (1) gives r = 2 / 1 = 2.",
+        "anchor": "eq-1"
+      },
+      {
+        "id": "values",
+        "label": "A = 1 and B = 2",
+        "kind": "shared",
+        "group": "",
+        "summary": "Both signal values use arbitrary units.",
+        "detail": "The bar caption and the ratio calculation use the same two values.",
+        "anchor": "s1"
+      }
+    ],
+    "edges": [
+      {"from": "two-signals", "to": "bars", "label": "shown in"},
+      {"from": "two-signals", "to": "ratio", "label": "compared in"},
+      {"from": "bars", "to": "bar-order", "label": "caption identifies"},
+      {"from": "ratio", "to": "division", "label": "calculated by"},
+      {"from": "bars", "to": "values", "label": "displays"},
+      {"from": "ratio", "to": "values", "label": "uses"}
+    ]
+  },
+  "flow": [
+    {
+      "title": "Match each bar to its value",
+      "input": "Figure 1 and its caption.",
+      "action": "Read the upper bar first, then the lower bar.",
+      "output": "Signal A is 1 arbitrary unit and signal B is 2 arbitrary units.",
+      "role": "These values supply the two inputs to Equation (1).",
+      "anchor": "fig-1",
+      "table": {
+        "caption": "Signal values from the Figure 1 caption",
+        "columns": ["Bar position", "Signal", "Value (arbitrary units)"],
+        "rows": [["Upper", "A", "1"], ["Lower", "B", "2"]]
+      }
+    },
+    {
+      "title": "Compute the ratio",
+      "input": "A = 1 and B = 2, in arbitrary units.",
+      "action": "Divide B by A in the order given in Equation (1).",
+      "output": "r = 2 / 1 = 2.",
+      "role": "The ratio expresses B as a multiple of A.",
+      "anchor": "eq-1"
+    }
+  ],
+  "depth": [
+    {
+      "title": "Which bar represents signal B?",
+      "condition": "Read Figure 1 with its caption.",
+      "conclusion": "The lower bar is signal B, with a value of 2 arbitrary units.",
+      "mechanism": "The caption identifies the signals by their vertical positions.",
+      "evidence": "Figure 1 assigns the upper bar to A (1 unit) and the lower bar to B (2 units).",
+      "anchor": "fig-1",
+      "figure": {
+        "path": "_tmp/P1/raw/images/signals.png",
+        "caption": "Figure 1. The upper bar shows signal A (1 unit) and the lower bar shows signal B (2 units)."
+      }
+    },
+    {
+      "title": "How does Equation (1) give a ratio of 2?",
+      "condition": "Use A = 1 and B = 2 in the same arbitrary units.",
+      "conclusion": "Signal B is twice signal A in this example.",
+      "mechanism": "Place B in the numerator and A in the denominator. The common unit cancels in B/A.",
+      "evidence": "Equation (1) gives r = 2 / 1 = 2.",
+      "anchor": "eq-1"
+    }
+  ]
+}

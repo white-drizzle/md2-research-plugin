@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank">
+<title>[[TITLE]]</title>
+<style>
+:root{--ink:#192e30;--muted:#566969;--paper:#fbfaf5;--teal:#17635d;--line:#d6ddd7;--surface:#fffefb;--accent:var(--teal);--sans:"Segoe UI","Microsoft YaHei",sans-serif;--serif:Georgia,"Songti SC",serif}
+*{box-sizing:border-box}body{margin:0;font:16px/1.65 var(--sans);color:var(--ink);background:var(--paper)}
+[hidden]{display:none!important}button,select{font:inherit;color:inherit}button,summary{cursor:pointer}
+button:focus-visible,summary:focus-visible,a:focus-visible,.term:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+a{color:var(--teal);text-underline-offset:3px}img{max-width:100%;height:auto}h1,h2,h3{line-height:1.3}
+.guide-wrap{width:min(1380px,calc(100% - 56px));margin:0 auto 32px}
+.guide-head{padding:20px 0 17px;border-bottom:1px solid var(--line);margin-bottom:20px}.guide-head h1{margin:.15em 0;font-family:var(--serif);font-size:clamp(26px,3vw,40px)}
+.guide-byline{margin:0;color:var(--muted);font-size:13px}.guide-summary{margin:8px 0;color:#405652}.guide-pdf{font-size:13px}
+.guide-source{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}.guide-figure{margin:14px 0}.guide-figure figcaption,.guide-table caption{text-align:left;font-size:14px;color:var(--muted)}
+.guide-table{overflow:auto;margin:14px 0}.guide-table table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}.guide-table td,.guide-table th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}.guide-table th{background:#edf2ec}
+.term{text-decoration:underline dotted;text-underline-offset:.18em;cursor:help}#term-tooltip{position:fixed;z-index:9999;background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:12px 14px;border-radius:6px;box-shadow:0 4px 16px #18362b22;width:max-content;max-width:min(360px,calc(100vw - 24px));max-height:min(320px,calc(100vh - 24px));overflow:auto;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+#term-tooltip .term-tooltip-title{display:block}#term-tooltip .term-tooltip-description{margin-top:5px;white-space:pre-line}
+@media(max-width:700px){.guide-wrap{width:calc(100% - 28px)}.guide-head{margin-bottom:14px;padding-top:14px}}
+[[CSS]]
+</style></head><body><div class="guide-wrap"><header class="guide-head"><p class="guide-byline">[[BYLINE]]</p><h1>[[TITLE]]</h1><p class="guide-summary">[[SUMMARY]]</p><div class="guide-pdf">[[PDF_LINK]]</div></header>
+<script type="application/json" id="guide-data">[[DATA]]</script>
+<script>
+window.Guide = (() => {
+  const pdf = [[PDF]];
+  const data = JSON.parse(document.getElementById("guide-data").textContent);
+
+  function text(element, value) {
+    const parts = [];
+    let end = 0;
+    for (const m of String(value).matchAll(/\[\[([^|\]]+)\|([^\]]+)\]\]/g)) {
+      parts.push(String(value).slice(end, m.index));
+      const term = document.createElement("span");
+      term.className = "term";
+      term.tabIndex = 0;
+      term.dataset.term = m[1];
+      term.textContent = m[2];
+      parts.push(term);
+      end = m.index + m[0].length;
+    }
+    parts.push(String(value).slice(end));
+    element.replaceChildren(...parts);
+  }
+
+  function links(element, item) {
+    const group = document.createElement("div");
+    group.className = "guide-source";
+    const read = document.createElement("a");
+    read.href = "#" + encodeURIComponent(item.anchor);
+    read.textContent = "读对应段落 →";
+    group.append(read);
+    if (pdf && item.page) {
+      const source = document.createElement("a");
+      source.href = pdf + "#page=" + item.page;
+      source.rel = "noopener";
+      source.textContent = "PDF 第 " + item.page + " 页 ↗";
+      group.append(source);
+    }
+    element.append(group);
+  }
+
+  function evidence(element, item) {
+    if (item.table) {
+      const wrap = document.createElement("div");
+      wrap.className = "guide-table";
+      const table = document.createElement("table");
+      text(table.createCaption(), item.table.caption);
+      const header = table.createTHead().insertRow();
+      for (const column of item.table.columns) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        text(th, column);
+        header.append(th);
+      }
+      const body = table.createTBody();
+      for (const values of item.table.rows) {
+        const row = body.insertRow();
+        for (const value of values) text(row.insertCell(), value);
+      }
+      wrap.append(table);
+      element.append(wrap);
+    }
+    if (item.figure) {
+      const fig = document.createElement("figure");
+      fig.className = "guide-figure";
+      const img = document.createElement("img");
+      img.src = item.figure.src;
+      img.alt = item.figure.caption;
+      img.loading = "lazy";
+      const caption = document.createElement("figcaption");
+      text(caption, item.figure.caption);
+      fig.append(img, caption);
+      element.append(fig);
+    }
+  }
+  return {data, text, links, evidence};
+})();
+document.addEventListener("click", event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  parent.postMessage({action:"read-paper-section", target:decodeURIComponent(link.hash.slice(1))}, "*");
+});
+</script><main class="content">[[VIEW]]</main></div>[[TOOLS]]</body></html>

@@ -1,0 +1,162 @@
+<style>
+body.four-mode-note{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.note-toolbar,.note-return{font:14px/1.4 "Segoe UI","Microsoft YaHei",sans-serif;color:#193b39;background:#f7f7ef;flex:none}
+.note-toolbar{position:relative;z-index:5;border-bottom:1px solid #d6ded4}
+.note-bar-inner{max-width:1440px;min-height:60px;margin:auto;padding:8px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.note-brand{font-weight:650;display:flex;align-items:center;gap:9px}.note-brand svg{width:23px;height:23px;color:#17635d}
+.note-tabs{display:flex;align-items:stretch;gap:3px;border-radius:8px;padding:3px;border:1px solid #d2dcd2;background:#ebefe8}
+.note-tabs button,.note-return button,.note-return select{font:inherit;color:inherit;cursor:pointer}
+.note-tabs button{padding:8px 17px;white-space:nowrap;font-weight:650;background:transparent;border:0;border-radius:5px}
+.note-tabs button:hover{background:#dfe8df}.note-tabs button[aria-pressed=true]{background:#17635d;color:white}
+.note-toolbar button:focus-visible,.note-return :focus-visible{outline:2px solid #a86128;outline-offset:2px}
+.note-return{display:flex;align-items:center;gap:14px;justify-content:space-between;padding:5px max(20px,calc((100% - 1180px)/2));background:#fffef9;border-bottom:1px solid #d6ded4}
+.note-return button{background:transparent;border:0;color:#17635d;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.note-return select{max-width:min(65%,300px);border:1px solid #ccd5cd;border-radius:4px;padding:3px;background:#fff}
+.note-return[hidden],.note-return button[hidden]{display:none}
+#note-stage{position:relative;flex:1;min-height:0}
+.note-pane{position:absolute;inset:0;visibility:hidden;pointer-events:none;overflow:hidden}
+.note-pane.is-current{visibility:visible;pointer-events:auto;z-index:1}
+.note-pane>iframe{display:block;width:100%;height:100%;border:0}
+#pane-reading{overflow:auto;overscroll-behavior:contain;scroll-padding-top:12px}
+#pane-reading .toc-sidebar{height:calc(100dvh - var(--note-bars,62px))}
+#pane-reading .content ol:not([style]),#pane-reading .content ul{padding-inline-start:1.2em}
+@media(max-width:760px){.note-bar-inner{min-height:48px;padding:5px 8px;justify-content:center}.note-brand{display:none}.note-tabs{width:100%;gap:1px}.note-tabs button{padding:8px 2px;flex:1;font-size:clamp(12px,3.15vw,15px)}.note-return{padding:5px 9px;gap:5px}.note-return button,.note-return select{font-size:12px}}
+@media print{body.four-mode-note{display:block;height:auto;overflow:visible}.note-toolbar,.note-return,.note-pane:not(#pane-reading){display:none!important}#note-stage,#pane-reading{position:static;display:block;visibility:visible;height:auto;overflow:visible}}
+</style>
+<header class="note-toolbar"><div class="note-bar-inner"><div class="note-brand">
+<svg viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="16" height="16" rx="2"/><rect x="9" y="9" width="8" height="8"/><path d="M9 1v4m8-4v4M1 9h4m-4 8h4m4 4v4m8-4v4m4-16h4m-4 8h4"/></g></svg>文献阅读笔记</div>
+<nav class="note-tabs" aria-label="切换阅读视图">[[TABS]]</nav></div></header>
+<div class="note-return" hidden><button type="button" id="note-return-button" hidden></button>
+<select id="note-section-picker" aria-label="精读解析章节"><option value="">跳到章节…</option>[[OPTIONS]]</select></div>
+<div id="note-stage">[[PANES]]<section id="pane-reading" class="note-pane" aria-label="精读解析" aria-hidden="true" inert>[[READER]]</section></div>
+<script type="application/json" id="guide-documents">[[DOCUMENTS]]</script>
+<script>
+(()=>{
+  const data=JSON.parse(document.getElementById('guide-documents').textContent);
+  const tabs=[...document.querySelectorAll('.note-tabs [data-mode]')];
+  const names=Object.fromEntries(tabs.map(t=>[t.dataset.mode,t.textContent]));
+  const panes=Object.fromEntries(tabs.map(t=>[t.dataset.mode,document.getElementById(t.getAttribute('aria-controls'))]));
+  const reading=panes.reading;
+  const fromButton=document.getElementById('note-return-button');
+  const readerBar=document.querySelector('.note-return');
+  const picker=document.getElementById('note-section-picker');
+  const frames=new Map();
+  let active='', previousGuide='', navEpoch=0, showingKey='';
+  history.scrollRestoration='manual';
+
+  function hashKey(){
+    try{return decodeURIComponent(location.hash.slice(1))||'view/overview';}
+    catch{return 'view/overview';}
+  }
+  function readerTarget(key){
+    const el=document.getElementById(key);
+    return el && reading.contains(el) ? el : null;
+  }
+  function guideFrame(mode){
+    if(frames.has(mode))return;
+    const frame=document.createElement('iframe');
+    frame.title=names[mode];
+    frame.srcdoc=data[mode];
+    frames.set(mode,frame);
+    panes[mode].append(frame);
+  }
+  function updateBarHeight(){
+    document.body.style.setProperty('--note-bars',(document.querySelector('.note-toolbar').offsetHeight+readerBar.offsetHeight)+'px');
+    const toolbar=reading.querySelector('.toggle-toolbar');
+    reading.style.scrollPaddingTop=(12+(toolbar?.offsetHeight||0))+'px';
+  }
+  function revealTarget(target){
+    for(let el=target;el && el!==reading;el=el.parentElement){
+      if(el.tagName==='DETAILS')el.open=true;
+      if(el.classList.contains('hidden')){
+        const group=['original-text','translated-text','insight-note'].find(c=>el.classList.contains(c));
+        if(group)reading.querySelector('.toggle-btn[data-target="'+group+'"]')?.click();
+      }
+    }
+  }
+  function savePosition(){
+    if(active==='reading' && showingKey===hashKey()){
+      history.replaceState({...history.state,readingY:reading.scrollTop,from:previousGuide},'');
+    }
+  }
+  function render(key,state={}){
+    const epoch=++navEpoch;
+    const target=key.startsWith('view/')?null:readerTarget(key);
+    const mode=target?'reading':key.startsWith('view/') && Object.hasOwn(names,key.slice(5))?key.slice(5):'overview';
+    const old=active;
+    if(old==='reading' && mode!==old){
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
+    }
+    active=mode;showingKey=key;
+    if(mode==='reading')previousGuide=state.from||((old && old!=='reading')?old:previousGuide);
+    else guideFrame(mode);
+    Object.entries(panes).forEach(([id,pane])=>{
+      const on=id===mode;
+      pane.classList.toggle('is-current',on);
+      pane.inert=!on;
+      pane.setAttribute('aria-hidden',String(!on));
+    });
+    tabs.forEach(t=>t.setAttribute('aria-pressed',String(t.dataset.mode===mode)));
+    readerBar.hidden=mode!=='reading';
+    fromButton.hidden=!previousGuide;
+    if(previousGuide)fromButton.textContent='← 返回'+names[previousGuide];
+    picker.value=target && [...picker.options].some(o=>o.value===key)?key:'';
+    updateBarHeight();
+    if(mode!=='reading')return;
+    if(target)revealTarget(target);
+    if(target || Number.isFinite(state.readingY)){
+      const align=()=>{
+        if(navEpoch!==epoch || active!=='reading')return;
+        if(Number.isFinite(state.readingY))reading.scrollTop=state.readingY;
+        else{
+          target.scrollIntoView({block:'start'});
+          if(!target.hasAttribute('tabindex'))target.setAttribute('tabindex','-1');
+          target.focus({preventScroll:true});
+        }
+      };
+      requestAnimationFrame(align);
+      // Initial direct links may arrive before MathJax has finished laying out equations.
+      window.MathJax?.startup?.promise?.then(()=>requestAnimationFrame(align));
+    }
+  }
+  function navigate(key){
+    if('view/'+active===key)return;
+    savePosition();
+    const state={from:active==='reading'?previousGuide:active};
+    if(key!==hashKey())history.pushState(state,'','#'+encodeURIComponent(key));
+    else history.replaceState(state,'');
+    render(key,state);
+  }
+  tabs.forEach(t=>t.addEventListener('click',()=>navigate('view/'+t.dataset.mode)));
+  fromButton.addEventListener('click',()=>{if(previousGuide)navigate('view/'+previousGuide);});
+  picker.addEventListener('change',()=>{if(picker.value)navigate(picker.value);});
+  reading.addEventListener('click',event=>{
+    if(event.target.closest('.back-to-top')){
+      event.preventDefault();
+      event.stopPropagation();
+      savePosition();
+      const state={from:previousGuide,readingY:0};
+      if(hashKey()!=='view/reading')history.pushState(state,'','#view/reading');
+      else history.replaceState(state,'');
+      render('view/reading',state);
+      return;
+    }
+    const link=event.target.closest('a[href^="#"]');
+    if(!link||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();
+    if(link.hash && readerTarget(decodeURIComponent(link.hash.slice(1))))navigate(decodeURIComponent(link.hash.slice(1)));
+    else if(link.getAttribute('href')==='#'){navigate('view/reading');reading.scrollTop=0;}
+  },true);
+  window.addEventListener('message',event=>{
+    if(event.data?.action!=='read-paper-section'||frames.get(active)?.contentWindow!==event.source)return;
+    const key=event.data.target;
+    if(typeof key==='string' && readerTarget(key))navigate(key);
+  });
+  window.addEventListener('popstate',()=>render(hashKey(),history.state||{}));
+  window.addEventListener('hashchange',()=>{if(hashKey()!==showingKey)render(hashKey(),history.state||{});});
+  reading.addEventListener('scrollend',savePosition);
+  for(const e of ['wheel','pointerdown','touchstart','keydown'])reading.addEventListener(e,()=>{navEpoch++;},{passive:true});
+  window.addEventListener('resize',updateBarHeight);
+  render(hashKey(),history.state||{});
+})();
+</script>
